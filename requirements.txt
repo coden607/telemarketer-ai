@@ -1,0 +1,4 @@
+# Runtime: stdlib only for simulate/mock paths (requests is lazy-imported
+# by live providers). Test tooling:
+pytest==8.3.4
+requests==2.31.0
