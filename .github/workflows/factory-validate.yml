@@ -1,0 +1,33 @@
+name: Factory Validate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python3 -m pytest -q
+      - name: Compliance invariant smoke check
+        run: |
+          python3 - <<'PY'
+          from telemarketer.consent import ContactStore, ConsentError
+          try:
+              ContactStore().require("+15551234567")
+          except ConsentError:
+              print("PASS: unknown number is blocked")
+          else:
+              raise SystemExit("FAIL: consent wall bypass detected")
+          PY
